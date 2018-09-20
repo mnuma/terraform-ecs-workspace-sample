@@ -28,7 +28,7 @@ variable "ecs_cluster_name" {
 }
 
 variable "ecs_image_id" {
-  default = "ami-a99d8ad5"
+  default = "ami-0d5f884dada5562c6"
 }
 
 variable "ecs_assume_role_file" {
@@ -62,11 +62,10 @@ resource "aws_ecs_service" "sample_api_service" {
   deployment_maximum_percent         = 100
 }
 
-resource "aws_launch_configuration" "ecs" {
-  name                  = "${var.env}-sample-ecs"
+resource "aws_launch_configuration" "sample_api" {
   image_id              = "${var.ecs_image_id}"
   key_name              = "${var.key_name}"
-  instance_type         = "t2.micro"
+  instance_type         = "t3.micro"
   iam_instance_profile  = "ecsInstanceRole"
   security_groups       = ["${var.ecs_sg_id}"]
   associate_public_ip_address = "true"
@@ -74,12 +73,16 @@ resource "aws_launch_configuration" "ecs" {
   #!/bin/bash
   echo ECS_CLUSTER=${aws_ecs_cluster.sample_ecs_cluster.name} >> /etc/ecs/ecs.config
 EOF
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
-resource "aws_autoscaling_group" "ecs" {
+resource "aws_autoscaling_group" "sample_api" {
   name                  = "${var.env}-sample-ecs-asg"
   availability_zones    = ["ap-northeast-1a", "ap-northeast-1c"]
-  launch_configuration  = "${aws_launch_configuration.ecs.name}"
+  launch_configuration  = "${aws_launch_configuration.sample_api.id}"
   vpc_zone_identifier   = ["${var.vpc_zone_id}"]
   min_size              = 1
   max_size              = 1
