@@ -43,14 +43,14 @@ resource "aws_ecs_cluster" "sample_ecs_cluster" {
   name = "${var.env}-${var.ecs_cluster_name}"
 }
 
-resource "aws_ecs_task_definition" "sample_api" {
-  family                = "${var.env}-sample-api"
-  container_definitions = "${file("${var.container_definitions_file}")}"
-}
-
 resource "aws_iam_role" "sample_ecs_service_role" {
   name               = "${var.env}-sample-ecs-service-role"
   assume_role_policy = "${file("${var.ecs_assume_role_file}")}"
+}
+
+resource "aws_ecs_task_definition" "sample_api" {
+  family                = "${var.env}-sample-api"
+  container_definitions = "${file("${var.container_definitions_file}")}"
 }
 
 resource "aws_ecs_service" "sample_api_service" {
@@ -58,7 +58,7 @@ resource "aws_ecs_service" "sample_api_service" {
   cluster                            = "${aws_ecs_cluster.sample_ecs_cluster.id}"
   task_definition                    = "${aws_ecs_task_definition.sample_api.arn}"
   desired_count                      = "${var.desired_count}"
-  deployment_minimum_healthy_percent = 50
+  deployment_minimum_healthy_percent = 0
   deployment_maximum_percent         = 100
 }
 
