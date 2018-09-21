@@ -9,6 +9,9 @@ init: ## init
 	# terraform workspace new staging2
 	# terraform workspace new staging
 	# terraform workspace new production
+	feq ($(shell command -v direnv 2> /dev/null),)
+		brew install direnv
+	endif
 
 tf-staging: ## tf-staging
 	terraform workspace select staging
